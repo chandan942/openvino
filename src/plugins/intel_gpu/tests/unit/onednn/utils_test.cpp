@@ -533,3 +533,12 @@ TEST_F(test_layout_to_memory_desc, regression_3d_shape_format_selection) {
     EXPECT_EQ(get_format_tag_from_desc(desc_byxf), dnnl::memory::format_tag::acb);
     // Format tags should be different (abc vs acb)
 }
+
+TEST_F(test_layout_to_memory_desc, batch_size_zero_throws_error) {
+    // Test that batch size 0 throws an error when using format_tag::ab
+    layout l = layout{ov::PartialShape{0, 256}, data_types::f32, format::bfyx};
+    
+    EXPECT_THROW({
+        auto desc = layout_to_memory_desc(l, dnnl::memory::format_tag::ab);
+    }, std::exception);
+}
