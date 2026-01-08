@@ -378,8 +378,12 @@ private:
             dims = flatten_tensor(_layout.get_tensor());
             dims.insert(dims.begin(), 1);
         } else if (fmt_tag == dnnl::memory::format_tag::ab) {
-            dims.push_back(_layout.batch());
-            dims.push_back(_layout.get_tensor().count() / _layout.batch());
+            auto batch = _layout.batch();
+            if (batch == 0) {
+                OPENVINO_THROW("[GPU] Invalid batch size: batch size == 0 is not allowed");
+            }
+            dims.push_back(batch);
+            dims.push_back(_layout.get_tensor().count() / batch);
         } else if (fmt_tag == dnnl::memory::format_tag::abc) {
             dims.push_back(_layout.batch());
             dims.push_back(_layout.feature());
